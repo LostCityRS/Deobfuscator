@@ -90,8 +90,8 @@ public class IdentityTransformer extends AstTransformer {
 			}
 		});
 
-		walk(unit, AssignExpr.class, expr -> {
-			var identity = switch (expr.getOperator()) {
+		findAll(unit, AssignExpr.class, expr ->
+			switch (expr.getOperator()) {
                 // x += 0, x -= 0
 				case PLUS, MINUS -> isZero(expr.getValue());
 
@@ -105,12 +105,8 @@ public class IdentityTransformer extends AstTransformer {
                 case BINARY_OR -> isFalse(expr.getValue());
 
 				default -> false;
-			};
-
-			if (!identity) {
-				return;
 			}
-
+		).forEach(expr -> {
 			expr.getParentNode().ifPresent(parent -> {
 				if (parent instanceof ExpressionStmt) {
 					parent.remove();
@@ -118,7 +114,7 @@ public class IdentityTransformer extends AstTransformer {
 					expr.replace(expr.getTarget().clone());
 				}
 			});
-		});
+        });
 	}
 
 	private boolean isZero(Expression expr) {

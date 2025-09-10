@@ -7,6 +7,7 @@ import org.tomlj.TomlParseResult;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class AstTransformer {
     protected TomlParseResult profile;
@@ -36,6 +37,10 @@ public class AstTransformer {
     }
 
     public void postTransform() {
+    }
+
+    protected static <T extends Node> List<T> findAll(CompilationUnit unit, Class<T> type, Predicate<T> predicate) {
+        return NodeUtil.findAll(unit, type, predicate);
     }
 
     protected static <T extends Node> void walk(CompilationUnit unit, Class<T> type, Consumer<T> consumer) {
