@@ -67,6 +67,26 @@ public class IdentityTransformer extends AstTransformer {
 						expr.replace(expr.getLeft().clone());
 					}
 				}
+
+                case BINARY_AND -> {
+                    if (isTrue(expr.getRight())) {
+                        // x & true
+						expr.replace(expr.getLeft().clone());
+                    } else if (isTrue(expr.getLeft())) {
+                        // true & x
+						expr.replace(expr.getRight().clone());
+                    }
+                }
+
+                case BINARY_OR -> {
+                    if (isFalse(expr.getRight())) {
+                        // x | false
+						expr.replace(expr.getLeft().clone());
+                    } else if (isFalse(expr.getLeft())) {
+                        // false | x
+						expr.replace(expr.getRight().clone());
+                    }
+                }
 			}
 		});
 
@@ -77,6 +97,12 @@ public class IdentityTransformer extends AstTransformer {
 
                 // x *= 1, x /= 1
 				case MULTIPLY, DIVIDE -> isOne(expr.getValue());
+
+                // x &= true
+                case BINARY_AND -> isTrue(expr.getValue());
+
+                // x |= false
+                case BINARY_OR -> isFalse(expr.getValue());
 
 				default -> false;
 			};
@@ -107,6 +133,20 @@ public class IdentityTransformer extends AstTransformer {
 		return switch (expr) {
 			case IntegerLiteralExpr intLitExpr -> intLitExpr.asNumber().intValue() == 1;
 			case LongLiteralExpr longLitExpr -> longLitExpr.asNumber().longValue() == 1L;
+            default -> false;
+		};
+	}
+
+	private boolean isTrue(Expression expr) {
+		return switch (expr) {
+			case BooleanLiteralExpr boolLitExpr -> boolLitExpr.getValue() == true;
+            default -> false;
+		};
+	}
+
+	private boolean isFalse(Expression expr) {
+		return switch (expr) {
+			case BooleanLiteralExpr boolLitExpr -> boolLitExpr.getValue() == false;
             default -> false;
 		};
 	}
