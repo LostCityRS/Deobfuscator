@@ -36,7 +36,10 @@ public class AnnotateObfuscatedNamesTransformer extends Transformer {
             return false;
         }
 
-        if (clazz != obfuscatedNameClass && AsmUtil.isClassObfuscated(clazz.name.substring(clazz.name.lastIndexOf('/') + 1))) {
+        if (
+            clazz.name.indexOf('/') == -1 ||
+            (clazz != obfuscatedNameClass && AsmUtil.isClassObfuscated(clazz.name.substring(clazz.name.lastIndexOf('/') + 1)))
+        ) {
             var classAnnotation = clazz.visitAnnotation("L" + obfuscatedNameClass.name + ";", false);
             classAnnotation.visit("value", clazz.name);
             classAnnotation.visitEnd();
