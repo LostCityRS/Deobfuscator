@@ -13,6 +13,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import rs.lostcity.asm.classpath.JsrInliner;
+
 public class JarUtil {
     public static List<ClassNode> readClasses(Path path) throws IOException {
         var classes = new ArrayList<ClassNode>();
@@ -30,7 +32,7 @@ public class JarUtil {
                 if (string.endsWith(".class")) {
                     var reader = new ClassReader(zin);
                     var node = new ClassNode();
-                    reader.accept(node, ClassReader.SKIP_FRAMES);
+                    reader.accept(new JsrInliner(node), ClassReader.SKIP_FRAMES);
                     classes.add(node);
                 }
             }
@@ -55,7 +57,7 @@ public class JarUtil {
                 if (string.endsWith(".class")) {
                     var reader = new ClassReader(zin);
                     var node = new ClassNode();
-                    reader.accept(node, ClassReader.SKIP_FRAMES);
+                    reader.accept(new JsrInliner(node), ClassReader.SKIP_FRAMES);
                     classes.add(node);
                 }
             }
