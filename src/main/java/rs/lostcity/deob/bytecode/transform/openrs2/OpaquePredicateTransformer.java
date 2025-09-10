@@ -24,17 +24,18 @@ public class OpaquePredicateTransformer extends Transformer {
         """
     );
     private final InsnMatcher OPAQUE_PREDICATE_MATCHER = InsnMatcher.compile("(GETSTATIC | ILOAD) (IFEQ | IFNE)");
+    private final InsnMatcher PUT_MATCHER = InsnMatcher.compile("ICONST PUTSTATIC");
     private final InsnMatcher STORE_MATCHER = InsnMatcher.compile("GETSTATIC ISTORE");
 
     private final Set<String> flowObfuscators = new HashSet<>();
+    private int assignments = 0;
     private int opaquePredicates = 0;
-    private int stores = 0;
 
     @Override
     public void preTransform(List<ClassNode> classes) {
         flowObfuscators.clear();
         opaquePredicates = 0;
-        stores = 0;
+        assignments = 0;
 
         for (ClassNode clazz : classes) {
             for (MethodNode method : clazz.methods) {
@@ -100,8 +101,13 @@ public class OpaquePredicateTransformer extends Transformer {
         return false;
     }
 
+    private boolean isRedundantPut(List<AbstractInsnNode> match) {
+        FieldInsnNode putstatic = (FieldInsnNode) match.get(1);
+        return isFlowObstructor(putstatic);
+    }
+
     private boolean isRedundantStore(List<AbstractInsnNode> match) {
-        FieldInsnNode getstatic = (FieldInsnNode) match.getFirst();
+        FieldInsnNode getstatic = (FieldInsnNode) match.get(0);
         return isFlowObstructor(getstatic);
     }
 
@@ -126,10 +132,19 @@ public class OpaquePredicateTransformer extends Transformer {
             }
         }
 
+        // remove redundant stores
         for (List<AbstractInsnNode> match : this.STORE_MATCHER.match(method.instructions)) {
             if (isRedundantStore(match)) {
                 match.forEach(method.instructions::remove);
-                stores++;
+                assignments++;
+            }
+        }
+
+        // remove redundant field assignments
+        for (List<AbstractInsnNode> match : this.PUT_MATCHER.match(method.instructions)) {
+            if (isRedundantPut(match)) {
+                match.forEach(method.instructions::remove);
+                assignments++;
             }
         }
 
@@ -138,6 +153,6 @@ public class OpaquePredicateTransformer extends Transformer {
 
     @Override
     public void postTransform(List<ClassNode> classes) {
-        System.out.println("Removed " + opaquePredicates + " opaque predicates and " + stores + " redundant stores");
+        System.out.println("Removed " + opaquePredicates + " opaque predicates and " + assignments + " redundant assignments");
     }
 }
