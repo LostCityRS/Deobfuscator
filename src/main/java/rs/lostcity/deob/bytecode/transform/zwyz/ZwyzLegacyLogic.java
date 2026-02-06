@@ -8,9 +8,10 @@ import java.util.*;
 public class ZwyzLegacyLogic {
     // todo: move list to profile
     public static final List<String> EXTERNAL_LIBRARIES = List.of(
-            "com/jagex/oldscape/pub",
-            "org/bouncycastle/",
-            "org/json/"
+        "com/jagex/oldscape/pub",
+        "org/bouncycastle/",
+        "org/json/",
+        "ObfuscatedName"
     );
 
     public static Set<String> calledMethods = new LinkedHashSet<>();
