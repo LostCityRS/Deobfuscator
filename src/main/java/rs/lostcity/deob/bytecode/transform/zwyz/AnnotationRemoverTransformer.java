@@ -18,7 +18,7 @@ public class AnnotationRemoverTransformer extends Transformer {
     }
 
     @Override
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         removeAnnotations(method.invisibleAnnotations);
         removeAnnotations(method.visibleAnnotations);
 

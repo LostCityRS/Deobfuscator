@@ -9,7 +9,7 @@ import java.util.List;
 /*
  * Default undeclared class, field, and method visibility to public
  */
-public class VisibilityTransformer extends Transformer {
+public class VisibilityTransformerPort extends Transformer {
     @Override
     public boolean transformClass(List<ClassNode> classes, ClassNode clazz) {
         clazz.access = (clazz.access & ~Opcodes.ACC_PRIVATE) | Opcodes.ACC_PUBLIC;

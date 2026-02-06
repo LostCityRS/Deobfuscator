@@ -9,7 +9,7 @@ import rs.lostcity.asm.transform.Transformer;
 
 import java.util.List;
 
-public class RedundantGotoTransformer extends Transformer {
+public class RedundantGotoTransformerPort extends Transformer {
 	private int removed;
 
 	@Override
@@ -18,7 +18,7 @@ public class RedundantGotoTransformer extends Transformer {
 	}
 
 	@Override
-	public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+	public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
 		InsnNodeUtil.removeDeadCode(method, clazz.name);
 		return false;
 	}

@@ -10,7 +10,7 @@ import rs.lostcity.deob.bytecode.AsmUtil;
 
 import java.util.List;
 
-public class BitShiftTransformer extends Transformer {
+public class BitShiftTransformerPort extends Transformer {
     private final InsnMatcher CONST_SHIFT_MATCHER = InsnMatcher.compile(
         "(ICONST | BIPUSH | SIPUSH | LDC) (ISHL | ISHR | IUSHR | LSHL | LSHR | LUSHR)"
     );

@@ -35,7 +35,7 @@ import java.util.Map;
  * handler pointing to the same `MONITOREXIT` sequence. Adding this isn't
  * necessary for Fernflower compatibility.
  */
-public class MonitorTransformer extends Transformer {
+public class MonitorTransformerPort extends Transformer {
     // relies on JsrInliner rewriting RET into GOTO
     private final InsnMatcher JSR_MATCHER = InsnMatcher.compile("ACONST_NULL GOTO");
     private final InsnMatcher SUBROUTINE_MATCHER = InsnMatcher.compile("ASTORE ALOAD MONITOREXIT GOTO");

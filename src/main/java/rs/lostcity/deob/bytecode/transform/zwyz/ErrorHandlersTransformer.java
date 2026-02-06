@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class ErrorHandlersTransformer extends Transformer {
     @Override
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         if (removeErrorHandler(clazz, method)) {
             ZwyzLegacyLogic.obfuscatedMethods.add(method.name);
         } else if ((method.access & Opcodes.ACC_ABSTRACT) == 0) {

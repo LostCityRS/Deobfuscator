@@ -15,7 +15,7 @@ public class VariableSplitterTransformer extends Transformer {
     private int firstLocalIndex;
 
     @Override
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         if ((method.access & Opcodes.ACC_ABSTRACT) != 0) {
             return false;
         }

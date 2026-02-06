@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class ExpressionSorterTransformer extends Transformer {
     @Override
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         var newInstructions = new MethodNode();
         var stack = new ArrayDeque<Expression>();
 

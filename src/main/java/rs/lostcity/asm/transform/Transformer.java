@@ -3,6 +3,7 @@ package rs.lostcity.asm.transform;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.openrs2.asm.classpath.ClassPath;
 import rs.lostcity.asm.InsnNodeUtil;
 import org.tomlj.TomlParseResult;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class Transformer {
     protected TomlParseResult profile;
+    public ClassPath classPath;
 
     public void provide(TomlParseResult profile) {
         this.profile = profile;
@@ -34,7 +36,7 @@ public class Transformer {
                 }
 
                 for (MethodNode method : clazz.methods) {
-                    changed |= this.transformMethod(classes, clazz, method);
+                    changed |= this.preTransformMethod(classes, clazz, method);
 
                     if (InsnNodeUtil.hasCode(method)) {
                         changed |= this.transformCode(classes, clazz, method);
@@ -67,7 +69,7 @@ public class Transformer {
         return false;
     }
 
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         return false;
     }
 

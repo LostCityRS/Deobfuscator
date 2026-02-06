@@ -21,7 +21,7 @@ import java.util.Objects;
  * obfuscation, it is clearly automatically-generated and thus we remove these
  * exception handlers too.
  */
-public class ExceptionTracingTransformer extends Transformer {
+public class ExceptionTracingTransformerPort extends Transformer {
     private final InsnMatcher CATCH_MATCHER = InsnMatcher.compile(
         """
         ASTORE? ALOAD?

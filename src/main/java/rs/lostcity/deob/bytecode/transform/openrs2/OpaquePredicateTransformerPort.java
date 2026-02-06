@@ -14,7 +14,7 @@ import java.util.Set;
 /*
  * Remove opaque predicates
  */
-public class OpaquePredicateTransformer extends Transformer {
+public class OpaquePredicateTransformerPort extends Transformer {
     private final InsnMatcher FLOW_OBSTRUCTOR_INITIALIZER_MATCHER = InsnMatcher.compile(
         """
         (GETSTATIC | ILOAD)

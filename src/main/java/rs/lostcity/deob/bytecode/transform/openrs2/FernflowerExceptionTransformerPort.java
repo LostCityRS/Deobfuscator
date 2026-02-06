@@ -9,7 +9,7 @@ import rs.lostcity.asm.transform.Transformer;
 
 import java.util.List;
 
-public class FernflowerExceptionTransformer extends Transformer {
+public class FernflowerExceptionTransformerPort extends Transformer {
     private int nopsInserted = 0;
 
     @Override

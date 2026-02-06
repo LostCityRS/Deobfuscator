@@ -1,21 +1,33 @@
 plugins {
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.2.10'
+
     id 'application'
 }
 
 dependencies {
+    // Profile
+    implementation 'org.tomlj:tomlj:1.1.1'
+
+    // Bytecode
     implementation 'org.ow2.asm:asm:9.7'
     implementation 'org.ow2.asm:asm-commons:9.7'
     implementation 'org.ow2.asm:asm-tree:9.7'
     implementation 'org.ow2.asm:asm-util:9.7'
 
-    // implementation 'com.jetbrains.intellij.java:java-decompiler-engine:241.15989.150'
-    // implementation 'org.vineflower:vineflower:1.10.1'
-    implementation 'org.openrs2:fernflower:1.1.1'
-
+    // AST
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.26.0'
 
-    implementation 'org.tomlj:tomlj:1.1.1'
+    // Decompiler
+    // implementation 'com.jetbrains.intellij.java:java-decompiler-engine:253.30387.90'
+    // implementation 'org.vineflower:vineflower:1.11.2'
+    implementation 'org.openrs2:fernflower:1.1.1'
+
+    // OpenRS2
+    implementation 'it.unimi.dsi:fastutil:8.5.16'
+    implementation 'org.jgrapht:jgrapht-core:1.5.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2'
 }
 
 java {
@@ -35,8 +47,8 @@ jar {
         )
     }
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

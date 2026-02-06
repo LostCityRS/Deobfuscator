@@ -1,6 +1,9 @@
 package rs.lostcity.deob.bytecode;
 
 import org.objectweb.asm.tree.ClassNode;
+import org.openrs2.asm.classpath.ClassPath;
+import org.openrs2.asm.classpath.Library;
+import org.openrs2.deob.bytecode.transform.*;
 import rs.lostcity.asm.transform.Transformer;
 import rs.lostcity.deob.bytecode.transform.*;
 import org.tomlj.TomlArray;
@@ -22,16 +25,47 @@ public class BytecodeDeobfuscator {
 
         registerTransformer(new RlMathTransformer());
         registerTransformer(new SortClassesLegacyTransformer());
+        registerTransformer(new StringDecryptionTransformer());
 
-        // openrs2
+        // openrs2 (kotlin)
         registerTransformer(new BitShiftTransformer());
+        registerTransformer(new BitwiseOpTransformer());
+        registerTransformer(new CanvasTransformer());
+        registerTransformer(new ClassLiteralTransformer());
+        registerTransformer(new ConstantArgTransformer());
+        registerTransformer(new CopyPropagationTransformer());
+        registerTransformer(new CounterTransformer());
+        registerTransformer(new EmptyClassTransformer());
         registerTransformer(new ExceptionObfuscationTransformer());
         registerTransformer(new ExceptionTracingTransformer());
         registerTransformer(new FernflowerExceptionTransformer());
+        registerTransformer(new FieldOrderTransformer());
+        registerTransformer(new FinalClassTransformer());
+        registerTransformer(new FinalFieldTransformer());
+        registerTransformer(new FinalMethodTransformer());
+        registerTransformer(new InvokeSpecialTransformer());
+        registerTransformer(new MethodOrderTransformer());
         registerTransformer(new MonitorTransformer());
+        registerTransformer(new MultipleAssignmentTransformer());
         registerTransformer(new OpaquePredicateTransformer());
+        registerTransformer(new OriginalNameTransformer());
+        registerTransformer(new OverrideTransformer());
+        registerTransformer(new ResetTransformer());
         registerTransformer(new RedundantGotoTransformer());
+        registerTransformer(new UnusedArgTransformer());
+        registerTransformer(new UnusedLocalTransformer());
+        registerTransformer(new UnusedMethodTransformer());
         registerTransformer(new VisibilityTransformer());
+
+        // openrs2 (ported to java)
+        registerTransformer(new BitShiftTransformerPort());
+        registerTransformer(new ExceptionObfuscationTransformerPort());
+        registerTransformer(new ExceptionTracingTransformerPort());
+        registerTransformer(new FernflowerExceptionTransformerPort());
+        registerTransformer(new MonitorTransformerPort());
+        registerTransformer(new OpaquePredicateTransformerPort());
+        registerTransformer(new RedundantGotoTransformerPort());
+        registerTransformer(new VisibilityTransformerPort());
 
         // zwyz
         registerTransformer(new AnnotationRemoverTransformer()); // runelite
@@ -67,6 +101,18 @@ public class BytecodeDeobfuscator {
 
                 Transformer transformer = this.allTransformers.get(name);
                 if (transformer != null) {
+                    // openrs2 compat:
+                    Library client = new Library("client");
+                    for (ClassNode clazz : classes) {
+                        client.add(clazz);
+                    }
+                    ClassPath classpath = new ClassPath(
+                        ClassLoader.getPlatformClassLoader(),
+                        List.of(),
+                        List.of(client)
+                    );
+                    transformer.classPath = classpath;
+
                     System.out.println("Applying " + name + " transformer");
                     transformer.transform(classes);
                 } else {

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DeleteInvokeDynamicTransformer extends Transformer {
     @Override
-    public boolean transformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
+    public boolean preTransformMethod(List<ClassNode> classes, ClassNode clazz, MethodNode method) {
         if ((method.access & Opcodes.ACC_ABSTRACT) != 0) {
             return false;
         }

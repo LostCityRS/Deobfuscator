@@ -15,7 +15,7 @@ import java.util.List;
  * immediately re-throw them. The exception handlers are inserted in locations
  * where there is no Java source code equivalent, confusing decompilers.
  */
-public class ExceptionObfuscationTransformer extends Transformer {
+public class ExceptionObfuscationTransformerPort extends Transformer {
     private int handlers = 0;
 
     @Override
