@@ -1,11 +1,13 @@
 package rs.lostcity.deob.bytecode.transform.openrs2;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import rs.lostcity.asm.InsnMatcher;
 import rs.lostcity.asm.InsnNodeUtil;
 import rs.lostcity.asm.transform.Transformer;
+import rs.lostcity.deob.bytecode.transform.zwyz.ZwyzLegacyLogic;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,6 +52,10 @@ public class ExceptionTracingTransformer extends Transformer {
             if (foundTryCatch) {
                 match.forEach(method.instructions::remove);
                 this.tryCatches++;
+
+                ZwyzLegacyLogic.obfuscatedMethods.add(method.name);
+            } else if ((method.access & Opcodes.ACC_ABSTRACT) == 0) {
+                ZwyzLegacyLogic.unobfuscatedMethods.add(method.name);
             }
         }
 
