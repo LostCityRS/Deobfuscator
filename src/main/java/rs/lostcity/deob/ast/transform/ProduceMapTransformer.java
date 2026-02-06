@@ -66,8 +66,10 @@ public class ProduceMapTransformer extends AstTransformer {
         walk(unit, ClassOrInterfaceDeclaration.class, clazz -> {
             String className = clazz.getNameAsString();
 
-            boolean checkClass = true; // !clazz.getNameAsString().toLowerCase().startsWith("class")
-            if (checkClass) {
+            if (!(
+                clazz.getNameAsString().toLowerCase().startsWith("class") ||
+                clazz.getNameAsString().toLowerCase().startsWith("static")
+            )) {
                 String foundClass = getOriginalName(clazz.getAnnotations(), true);
 
                 if (foundClass != null) {
@@ -96,7 +98,7 @@ public class ProduceMapTransformer extends AstTransformer {
 
             clazz.getFields().forEach(field -> {
                 String fieldName = field.getVariables().get(0).getNameAsString();
-                /*if (
+                if (
                     fieldName.startsWith("field") ||
                     fieldName.startsWith("aFloat") ||
                     fieldName.startsWith("aDouble") ||
@@ -110,10 +112,18 @@ public class ProduceMapTransformer extends AstTransformer {
                     fieldName.startsWith("aFrame") ||
                     fieldName.startsWith("anImage") ||
                     fieldName.startsWith("aColor") ||
-                    fieldName.startsWith("aString")
+                    fieldName.startsWith("aString") ||
+                    fieldName.startsWith("aCalendar") ||
+                    fieldName.startsWith("aComponent") ||
+                    fieldName.startsWith("aThread") ||
+                    fieldName.startsWith("anAudio") ||
+                    fieldName.startsWith("aSocket") ||
+                    fieldName.startsWith("anInput") ||
+                    fieldName.startsWith("anOutput") ||
+                    fieldName.startsWith("aSoft")
                 ) {
                     return;
-                }*/
+                }
 
                 String originalName = getOriginalName(field.getAnnotations(), false);
                 if (
@@ -132,9 +142,9 @@ public class ProduceMapTransformer extends AstTransformer {
 
             clazz.getMethods().forEach(method -> {
                 String memberName = method.getNameAsString();
-                /*if (memberName.startsWith("method")) {
+                if (memberName.startsWith("method")) {
                     return;
-                }*/
+                }
 
                 String originalName = getOriginalName(method.getAnnotations(), true);
                 if (

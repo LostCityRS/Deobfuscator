@@ -12,6 +12,17 @@ import java.util.List;
 public class StaticFieldsTransformer extends Transformer {
     @Override
     public void transform(List<ClassNode> classes) {
+        boolean exists = false;
+        for (var clazz : classes) {
+            if (clazz.name.equals("Statics")) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            classes.add(ZwyzLegacyLogic.staticsClass);
+        }
+
         // Remove unused fields
         var usedFields = new HashSet<String>();
 
