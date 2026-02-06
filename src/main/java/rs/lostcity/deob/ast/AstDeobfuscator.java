@@ -114,10 +114,10 @@ public class AstDeobfuscator {
 
                 AstTransformer transformer = this.allAstTransformers.get(name);
                 if (transformer != null) {
-                    System.out.println("Applying " + name + " source transformer");
+                    System.out.println("- Applying " + name + " source transformer");
                     transformer.transform(units);
                 } else {
-                    System.err.println("Unknown AST transformer: " + name);
+                    System.err.println("- Unknown source transformer: " + name);
                 }
             }
         }

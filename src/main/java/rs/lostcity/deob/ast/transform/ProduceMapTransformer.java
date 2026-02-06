@@ -64,38 +64,39 @@ public class ProduceMapTransformer extends AstTransformer {
 
         // todo: detect inner classes
         walk(unit, ClassOrInterfaceDeclaration.class, clazz -> {
-            if (
-                clazz.getNameAsString().toLowerCase().startsWith("class")
-            ) {
-                return;
+            String className = clazz.getNameAsString();
+
+            boolean checkClass = true; // !clazz.getNameAsString().toLowerCase().startsWith("class")
+            if (checkClass) {
+                String foundClass = getOriginalName(clazz.getAnnotations(), true);
+
+                if (foundClass != null) {
+                    String newClass;
+                    if (pkgName.get() != null) {
+                        newClass = pkgName + "." + clazz.getNameAsString();
+                    } else {
+                        newClass = clazz.getNameAsString();
+                    }
+
+                    result += foundClass + "=" + newClass + "\n";
+                } /* else {
+                    foundClass = clazz.getNameAsString();
+
+                    if (pkgName.get() != null) {
+                        result += foundClass + "=" + pkgName + "." + clazz.getNameAsString() + "\n";
+                    }
+                } */
+
+                if (foundClass != null) {
+                    className = foundClass;
+                }
             }
 
-            String foundClass = getOriginalName(clazz.getAnnotations(), true);
-            if (foundClass != null) {
-                String newClass;
-                if (pkgName.get() != null) {
-                    newClass = pkgName + "." + clazz.getNameAsString();
-                } else {
-                    newClass = clazz.getNameAsString();
-                }
-
-                result += foundClass + "=" + newClass + "\n";
-            } /* else {
-                foundClass = clazz.getNameAsString();
-
-                if (pkgName.get() != null) {
-                    result += foundClass + "=" + pkgName + "." + clazz.getNameAsString() + "\n";
-                }
-            } */
-
-            final String originalClass = foundClass;
-            if (originalClass == null) {
-                return;
-            }
+            final String originalClass = className;
 
             clazz.getFields().forEach(field -> {
                 String fieldName = field.getVariables().get(0).getNameAsString();
-                if (
+                /*if (
                     fieldName.startsWith("field") ||
                     fieldName.startsWith("aFloat") ||
                     fieldName.startsWith("aDouble") ||
@@ -108,15 +109,16 @@ public class ProduceMapTransformer extends AstTransformer {
                     fieldName.startsWith("anObject") ||
                     fieldName.startsWith("aFrame") ||
                     fieldName.startsWith("anImage") ||
-                    fieldName.startsWith("aColor")
+                    fieldName.startsWith("aColor") ||
+                    fieldName.startsWith("aString")
                 ) {
                     return;
-                }
+                }*/
 
                 String originalName = getOriginalName(field.getAnnotations(), false);
                 if (
                     originalName == null ||
-                    fieldName.equals(originalName)
+                    (originalClass + "." + fieldName).equals(originalName)
                 ) {
                     return;
                 }
@@ -130,9 +132,9 @@ public class ProduceMapTransformer extends AstTransformer {
 
             clazz.getMethods().forEach(method -> {
                 String memberName = method.getNameAsString();
-                if (memberName.startsWith("method")) {
+                /*if (memberName.startsWith("method")) {
                     return;
-                }
+                }*/
 
                 String originalName = getOriginalName(method.getAnnotations(), true);
                 if (

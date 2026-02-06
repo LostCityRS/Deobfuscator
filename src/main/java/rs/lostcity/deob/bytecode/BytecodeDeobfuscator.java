@@ -113,10 +113,10 @@ public class BytecodeDeobfuscator {
                     );
                     transformer.classPath = classpath;
 
-                    System.out.println("Applying " + name + " transformer");
+                    System.out.println("- Applying " + name + " transformer");
                     transformer.transform(classes);
                 } else {
-                    System.err.println("Unknown transformer: " + name);
+                    System.err.println("- Unknown transformer: " + name);
                 }
             }
         }

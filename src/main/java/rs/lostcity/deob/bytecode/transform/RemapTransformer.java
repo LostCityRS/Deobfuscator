@@ -78,10 +78,50 @@ public class RemapTransformer extends Transformer {
         intermediaryMappings.put("ObfuscatedName", "deob/ObfuscatedName");
         intermediaryMappings.put("Moved", "deob/Moved");
 
+        // Create any "missing" classes from the remap (this means the user may have deviated)
+        Set<String> staticClasses = new HashSet<>();
+        for (var map : mappings.entrySet()) {
+            var obfName = map.getKey();
+            var rename = map.getValue();
+            if (!obfName.contains(".") || !rename.contains(",")) {
+                continue;
+            }
+
+            var newClassName = rename.split(",")[0];
+            if (mappings.get(newClassName) != null) {
+                continue;
+            }
+
+            staticClasses.add(newClassName);
+        }
+        for (var className : staticClasses) {
+            boolean exists = false;
+            for (var clazz : classes) {
+                if (clazz.name.equals(className)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                continue;
+            }
+
+            var pkgName = className.substring(0, className.lastIndexOf('/') + 1);
+            var classNameWithPkg = pkgName.isEmpty() ? defaultPkg + "/" + className : className;
+            intermediaryMappings.put(className, classNameWithPkg);
+
+            ClassNode newClass = new ClassNode();
+            newClass.version = Opcodes.V1_6;
+            newClass.access = Opcodes.ACC_PUBLIC;
+            newClass.name = className;
+            newClass.sourceFile = classNameWithPkg + ".java";
+            classes.add(newClass);
+        }
+
         // Move statics
         var newOwners = new HashMap<String, String>();
 
-        for (var key : new HashSet<>(intermediaryMappings.keySet())) {
+        for (var key : intermediaryMappings.keySet()) {
             var value = intermediaryMappings.get(key);
 
             if (value.contains(",")) {
