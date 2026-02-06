@@ -82,7 +82,7 @@ public class UnusedArgTransformer : Transformer() {
                     if (invokePartition == null) {
                         continue@frame
                     } else if (
-                        !MethodMappingGenerator.isRenamable(classPath, GlobMemberFilter(listOf()), invokePartition)
+                        !MethodMappingGenerator.isRenamable(classPath, excludedMethods, invokePartition)
                     ) {
                         continue@frame
                     }
@@ -128,7 +128,7 @@ public class UnusedArgTransformer : Transformer() {
             val partition = inheritedMethodSets[MemberRef(insn)]
             if (partition == null) {
                 continue
-            } else if (!MethodMappingGenerator.isRenamable(classPath, GlobMemberFilter(listOf()), partition)) {
+            } else if (!MethodMappingGenerator.isRenamable(classPath, excludedMethods, partition)) {
                 continue
             }
 
@@ -160,7 +160,7 @@ public class UnusedArgTransformer : Transformer() {
     ): Boolean {
         // delete unused int args from the method itself
         val partition = inheritedMethodSets[MemberRef(clazz, method)]!!
-        if (!MethodMappingGenerator.isRenamable(classPath, GlobMemberFilter(listOf()), partition)) {
+        if (!MethodMappingGenerator.isRenamable(classPath, excludedMethods, partition)) {
             return false
         }
 
@@ -180,6 +180,16 @@ public class UnusedArgTransformer : Transformer() {
     }
 
     private companion object {
+        private val excludedMethods = GlobMemberFilter(listOf(
+            MemberRef("*", "<clinit>", "*"),
+            MemberRef("*", "<init>", "*"),
+            MemberRef("*", "main", "*"),
+            MemberRef("com/sun/opengl/impl/x11/*", "*", "*"),
+            MemberRef("jaggl/*", "*", "*"),
+            MemberRef("javax/media/opengl/*", "*", "*"),
+            MemberRef("*", "quit", "*")
+        ))
+
         private val INT_SORTS = setOf(
             Type.BOOLEAN,
             Type.BYTE,
