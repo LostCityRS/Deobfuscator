@@ -26,6 +26,7 @@ public class AstDeobfuscator {
     public AstDeobfuscator(TomlParseResult profile) {
         this.profile = profile;
 
+        registerAstTransformer(new RedundantThisTransformer());
         registerAstTransformer(new ProduceMapTransformer());
 
         // todo: GlTransformer
