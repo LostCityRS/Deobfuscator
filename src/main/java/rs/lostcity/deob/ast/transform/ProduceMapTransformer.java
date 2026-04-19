@@ -95,72 +95,105 @@ public class ProduceMapTransformer extends AstTransformer {
             }
 
             final String originalClass = className;
+            final String classForError = originalClass != null ? originalClass : clazz.getNameAsString();
 
             clazz.getFields().forEach(field -> {
-                String fieldName = field.getVariables().get(0).getNameAsString();
-                if (
-                    fieldName.startsWith("field") ||
-                    fieldName.startsWith("aFloat") ||
-                    fieldName.startsWith("aDouble") ||
-                    fieldName.startsWith("aLong") ||
-                    fieldName.startsWith("anInt") ||
-                    fieldName.startsWith("aShort") ||
-                    fieldName.startsWith("aByte") ||
-                    fieldName.startsWith("aBoolean") ||
-                    fieldName.startsWith("aClass") ||
-                    fieldName.startsWith("anObject") ||
-                    fieldName.startsWith("aFrame") ||
-                    fieldName.startsWith("anImage") ||
-                    fieldName.startsWith("aColor") ||
-                    fieldName.startsWith("aString") ||
-                    fieldName.startsWith("aCalendar") ||
-                    fieldName.startsWith("aComponent") ||
-                    fieldName.startsWith("aThread") ||
-                    fieldName.startsWith("anAudio") ||
-                    fieldName.startsWith("aSocket") ||
-                    fieldName.startsWith("anInput") ||
-                    fieldName.startsWith("anOutput") ||
-                    fieldName.startsWith("aSoft")
-                ) {
-                    return;
-                }
+                String fieldName = "<unknown>";
 
-                String originalName = getOriginalName(field.getAnnotations(), false);
-                if (
-                    originalName == null ||
-                    (originalClass + "." + fieldName).equals(originalName)
-                ) {
-                    return;
-                }
+                try {
+                    fieldName = field.getVariables().get(0).getNameAsString();
+                    if (
+                        fieldName.startsWith("field") ||
+                        fieldName.startsWith("aFloat") ||
+                        fieldName.startsWith("aDouble") ||
+                        fieldName.startsWith("aLong") ||
+                        fieldName.startsWith("anInt") ||
+                        fieldName.startsWith("aShort") ||
+                        fieldName.startsWith("aByte") ||
+                        fieldName.startsWith("aBoolean") ||
+                        fieldName.startsWith("aClass") ||
+                        fieldName.startsWith("anObject") ||
+                        fieldName.startsWith("aFrame") ||
+                        fieldName.startsWith("anImage") ||
+                        fieldName.startsWith("aColor") ||
+                        fieldName.startsWith("aString") ||
+                        fieldName.startsWith("aCalendar") ||
+                        fieldName.startsWith("aComponent") ||
+                        fieldName.startsWith("aThread") ||
+                        fieldName.startsWith("anAudio") ||
+                        fieldName.startsWith("aSocket") ||
+                        fieldName.startsWith("anInput") ||
+                        fieldName.startsWith("anOutput") ||
+                        fieldName.startsWith("aSoft")
+                    ) {
+                        return;
+                    }
 
-                if (field.isStatic() && !originalClass.equals(getOriginalClass(field.getAnnotations()))) {
-                    result += originalName + "=" + originalClass + "," + fieldName + "\n";
-                } else {
-                    result += originalName + "=" + fieldName + "\n";
+                    String originalName = getOriginalName(field.getAnnotations(), false);
+                    if (
+                        originalName == null ||
+                        (originalClass + "." + fieldName).equals(originalName)
+                    ) {
+                        return;
+                    }
+
+                    if (field.isStatic() && !requireOriginalClass(originalClass, "field", classForError, fieldName).equals(getOriginalClass(field.getAnnotations()))) {
+                        result += originalName + "=" + originalClass + "," + fieldName + "\n";
+                    } else {
+                        result += originalName + "=" + fieldName + "\n";
+                    }
+                } catch (RuntimeException ex) {
+                    throw fail("field", classForError, fieldName, ex);
                 }
             });
 
             clazz.getMethods().forEach(method -> {
-                String memberName = method.getNameAsString();
-                if (memberName.startsWith("method")) {
-                    return;
-                }
+                String memberName = "<unknown>";
 
-                String originalName = getOriginalName(method.getAnnotations(), true);
-                if (
-                    originalName == null ||
-                    (originalClass + "." + memberName).equals(getOriginalName(method.getAnnotations(), false))
-                ) {
-                    return;
-                }
+                try {
+                    memberName = method.getNameAsString();
+                    if (memberName.startsWith("method")) {
+                        return;
+                    }
 
-                if (method.isStatic() && !originalClass.equals(getOriginalClass(method.getAnnotations()))) {
-                    result += originalName + "=" + originalClass + "," + memberName + "\n";
-                } else {
-                    result += originalName + "=" + memberName + "\n";
+                    String originalName = getOriginalName(method.getAnnotations(), true);
+                    if (
+                        originalName == null ||
+                        (originalClass + "." + memberName).equals(getOriginalName(method.getAnnotations(), false))
+                    ) {
+                        return;
+                    }
+
+                    if (method.isStatic() && !requireOriginalClass(originalClass, "method", classForError, memberName).equals(getOriginalClass(method.getAnnotations()))) {
+                        result += originalName + "=" + originalClass + "," + memberName + "\n";
+                    } else {
+                        result += originalName + "=" + memberName + "\n";
+                    }
+                } catch (RuntimeException ex) {
+                    throw fail("method", classForError, memberName, ex);
                 }
             });
         });
+    }
+
+    private static String requireOriginalClass(String originalClass, String memberType, String className, String memberName) {
+        if (originalClass == null || originalClass.isEmpty()) {
+            throw fail(memberType, className, memberName, "original class name resolved to null/empty");
+        }
+
+        return originalClass;
+    }
+
+    private static RuntimeException fail(String memberType, String className, String memberName, String reason) {
+        return new IllegalStateException("ProduceMap failed on " + memberType + " '" + className + "." + memberName + "': " + reason);
+    }
+
+    private static RuntimeException fail(String memberType, String className, String memberName, Throwable cause) {
+        if (cause instanceof IllegalStateException && cause.getMessage() != null && cause.getMessage().startsWith("ProduceMap failed on")) {
+            return (RuntimeException) cause;
+        }
+
+        return new IllegalStateException("ProduceMap failed on " + memberType + " '" + className + "." + memberName + "'", cause);
     }
 
     public String getOriginalName(List<AnnotationExpr> annotations, boolean addDescriptor) {

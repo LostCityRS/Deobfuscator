@@ -54,7 +54,13 @@ public class Deobfuscator {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            if (ex.getMessage() != null && !ex.getMessage().isEmpty()) {
+                System.err.println(ex.getMessage());
+            } else {
+                System.err.println("Deobfuscator failed: " + ex.getClass().getSimpleName());
+            }
+
+            System.exit(1);
         }
     }
 }
